@@ -1,3 +1,7 @@
+let allMovies = [];
+let currentIndex = 0;
+const moviesPerPage = 6;
+
 const heading = document.createElement('h2');
 heading.className = 'text-2xl font-bold mb-4';
 heading.textContent = 'Popular Movies';
@@ -7,10 +11,20 @@ moviesContainer.id = 'movies-container';
 moviesContainer.className =
   'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6';
 
+const loadButton = document.createElement('button');
+loadButton.textContent = 'Load more...';
+loadButton.className =
+  'mt-6 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600';
+
+loadButton.addEventListener('click', () => {
+  renderNextMovies();
+});
+
 const main = document.querySelector('main');
 main.className = 'p-10';
 main.appendChild(heading);
 main.appendChild(moviesContainer);
+main.appendChild(loadButton);
 
 const fetchPopularMovies = async () => {
   try {
@@ -21,7 +35,8 @@ const fetchPopularMovies = async () => {
       },
     });
     const data = await response.json();
-    renderMovies(data.results);
+    allMovies = data.results;
+    renderNextMovies();
   } catch (error) {
     console.log(error);
   }
@@ -29,9 +44,21 @@ const fetchPopularMovies = async () => {
 
 fetchPopularMovies();
 
+function renderNextMovies() {
+  const nextMovies = allMovies.slice(
+    currentIndex,
+    currentIndex + moviesPerPage
+  );
+  renderMovies(nextMovies);
+  currentIndex += moviesPerPage;
+
+  if (currentIndex >= allMovies.length) {
+    loadButton.style.display = 'none';
+  }
+}
+
 function renderMovies(movies) {
   const container = document.getElementById('movies-container');
-  container.innerHTML = '';
 
   movies.forEach((movie) => {
     if (!movie.poster_path) return;
