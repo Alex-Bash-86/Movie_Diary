@@ -17,21 +17,31 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="p-4">
         <h2 class="text-xl font-semibold">${movie.title}</h2>
         <p class="text-gray-600 text-sm">${movie.description}</p>
-        <textarea class="mt-2 w-full border p-2 rounded note-area" rows="3" placeholder="Note...">${movie.note || ''}</textarea>
+
+        <textarea class="mt-2 w-full border p-2 rounded note-input" rows="3" placeholder="Add a note..."></textarea>
+        <textarea class="mt-2 w-full border p-2 rounded saved-note" rows="2" placeholder="Saved user notes" readonly>${movie.note || ''}</textarea>
+
         <button class="mt-2 px-3 py-1 bg-blue-500 text-white rounded save-note">Save note</button>
       </div>
     `;
 
-    const noteArea = card.querySelector('.note-area');
+    const noteInput = card.querySelector('.note-input');
+    const savedNote = card.querySelector('.saved-note');
     const saveButton = card.querySelector('.save-note');
 
     saveButton.addEventListener('click', () => {
-      const updatedNote = noteArea.value;
-      const updatedFavorites = favorites.map(f =>
-        f.id === movie.id ? { ...f, note: updatedNote } : f
-      );
-      localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
-      alert('Note saved successfully');
+      const updatedNote = noteInput.value.trim();
+      if (updatedNote !== '') {
+        const updatedFavorites = favorites.map(f =>
+          f.id === movie.id ? { ...f, note: updatedNote } : f
+        );
+        localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+        savedNote.value = updatedNote;
+        noteInput.value = '';
+        alert('Note saved successfully');
+      } else {
+        alert('Note cannot be empty.');
+      }
     });
 
     container.appendChild(card);
