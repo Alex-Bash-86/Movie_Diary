@@ -1,6 +1,6 @@
 export function renderNavbar() {
   const currentPath = window.location.pathname;
-
+  
   const nav = document.createElement("nav");
   nav.className = "bg-gray-900 text-white px-6 py-4 shadow";
 
