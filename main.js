@@ -1,6 +1,6 @@
-import { renderNavbar } from './navbar.js';
+import { renderNavbar } from "./navbar.js";
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   renderNavbar();
 
   const main = document.querySelector("main");
@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   fetchPopularMovies();
 });
-
 
 let allMovies = [];
 let currentIndex = 0;
@@ -57,7 +56,6 @@ const fetchPopularMovies = async () => {
   }
 };
 
-
 function renderNextMovies() {
   const nextMovies = allMovies.slice(
     currentIndex,
@@ -72,13 +70,13 @@ function renderNextMovies() {
 }
 
 function renderMovies(movies) {
-  const container = document.getElementById('movies-container');
+  const container = document.getElementById("movies-container");
 
   movies.forEach((movie) => {
     if (!movie.poster_path) return;
 
-    const card = document.createElement('div');
-    card.className = 'bg-white rounded-xl shadow-md overflow-hidden';
+    const card = document.createElement("div");
+    card.className = "bg-white rounded-xl shadow-md overflow-hidden";
 
     card.innerHTML = `
       <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" class="w-full h-auto">
@@ -90,26 +88,75 @@ function renderMovies(movies) {
       </div>
     `;
 
-    const addButton = card.querySelector('.add-fav');
-    addButton.addEventListener('click', () => {
+    const addButton = card.querySelector(".add-fav");
+    addButton.addEventListener("click", () => {
       const favoriteMovie = {
         id: movie.id,
         title: movie.title,
         image: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
         description: `Rating: ${movie.vote_average}, Release: ${movie.release_date}`,
-        note: ""
+        note: "",
       };
 
-      const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-      if (!favorites.some(m => m.id === favoriteMovie.id)) {
+      const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+      if (!favorites.some((m) => m.id === favoriteMovie.id)) {
         favorites.push(favoriteMovie);
-        localStorage.setItem('favorites', JSON.stringify(favorites));
-        alert('Movie added to favorites');
+        localStorage.setItem("favorites", JSON.stringify(favorites));
+        alert("Movie added to favorites");
       } else {
-        alert('The movie is already in your favorites');
+        alert("The movie is already in your favorites");
       }
     });
 
     container.appendChild(card);
   });
 }
+
+const searchDiv = document.createElement("div");
+const searchInput = document.createElement("input");
+const searchLabel = document.createElement("label");
+const header = document.querySelector("header");
+header.appendChild(searchDiv);
+
+searchDiv.appendChild(searchLabel);
+searchDiv.appendChild(searchInput);
+searchLabel.textContent = "Search Movie";
+searchDiv.classList = "flex flex-col flex-wrap justify-center pt-4";
+searchLabel.classList = "text-center text-xl font-bold";
+searchInput.classList =
+  "border-[1px] rounded-[10px] max-w-[300px] self-center p-[5px]";
+
+const resultsDiv = document.createElement("div");
+resultsDiv.classList = "flex flex-wrap justify-center gap-4 p-4";
+header.appendChild(resultsDiv);
+
+const dataTemplate = document.createElement("template");
+dataTemplate.innerHTML = `
+  <div class="border p-4 rounded w-[200px] text-center shadow">
+    <h3 class="font-bold mb-2"></h3>
+    <p></p>
+  </div>
+`;
+document.body.appendChild(dataTemplate);
+
+searchInput.addEventListener("input", () => {
+  const query = searchInput.value.trim();
+
+  if (query.length < 2) return (resultsDiv.innerHTML = "");
+  fetch(
+    `https://api.themoviedb.org/3/search/movie?api_key=eb4eb91cf19f0b8e1a2d8d2f45b67c2f&query=${encodeURIComponent(
+      query
+    )}`
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      resultsDiv.innerHTML = "";
+      data.results.slice(0, 5).forEach((movie) => {
+        const card = dataTemplate.content.cloneNode(true);
+        card.querySelector("h3").textContent = movie.title;
+        card.querySelector("p").textContent = movie.release_date;
+        resultsDiv.appendChild(card);
+      });
+    })
+    .catch((err) => console.error(err));
+});
