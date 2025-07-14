@@ -1,6 +1,6 @@
 export function renderNavbar() {
   const currentPath = window.location.pathname;
-  
+  //console.log("Current Path:", window.location.pathname);
   const nav = document.createElement("nav");
   nav.className = "bg-gray-900 text-white px-6 py-4 shadow";
 
@@ -15,12 +15,12 @@ export function renderNavbar() {
   button.className =
     "bg-white text-gray-900 font-medium px-4 py-2 rounded hover:bg-gray-200 transition";
 
-  if (currentPath.includes("index") || currentPath === "/") {
+  if (currentPath.endsWith("index.html") || currentPath === "/" || currentPath.endsWith("/")) {
     button.textContent = "Favorites";
     button.addEventListener("click", () => {
       window.location.href = "journal.html";
     });
-  } else if (currentPath.includes("journal")) {
+  } else if (currentPath.endsWith("journal.html")) {
     button.textContent = "Home";
     button.addEventListener("click", () => {
       window.location.href = "index.html";
